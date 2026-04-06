@@ -87,7 +87,7 @@ export async function getDb(): Promise<IDatabase> {
   
   if (config.provider === "sqlite") {
     const { SqliteAdapter } = await import("./database-sqlite-adapter");
-    return new SqliteAdapter(db);
+    return new SqliteAdapter();
   }
   
   if (config.provider === "postgres") {
