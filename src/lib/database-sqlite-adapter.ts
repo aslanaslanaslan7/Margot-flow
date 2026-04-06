@@ -113,7 +113,7 @@ export class SqliteAdapter implements IDatabase {
     try {
       const db = await this.getDb();
       const rows = db.prepare("SELECT * FROM records WHERE tenant_id = ?").all(tenantId) as RecordItem[];
-      return { rows, success: true };
+      return { rows: rows as any, success: true };
     } catch (error) {
       return { rows: [], success: false, error: String(error) };
     }
@@ -122,8 +122,8 @@ export class SqliteAdapter implements IDatabase {
   async getRecord(id: string, tenantId: string): Promise<QueryRow<RecordItem>> {
     try {
       const db = await this.getDb();
-      const row = db.prepare("SELECT * FROM records WHERE id = ? AND tenant_id = ?").get(id, tenantId);
-      return { row: row || null, success: true };
+      const row = db.prepare("SELECT * FROM records WHERE id = ? AND tenant_id = ?").get(id, tenantId) as RecordItem | undefined;
+      return { row: row as any || null, success: true };
     } catch (error) {
       return { row: null, success: false, error: String(error) };
     }
@@ -132,7 +132,7 @@ export class SqliteAdapter implements IDatabase {
   async createRecord(record: RecordItem): Promise<ExecuteResult> {
     try {
       const db = await this.getDb();
-      db.prepare("INSERT INTO records (id, tenant_id, title, category, amount, currency, date, status, notes, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)").run(record.id, record.tenant_id, record.title, record.category, record.amount, record.currency, record.date, record.status, record.notes, record.created_at, record.updated_at);
+      db.prepare("INSERT INTO records (id, tenant_id, title, category, amount, currency, date, status, notes, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)").run(record.id, (record as any).tenant_id || "demo", record.title, (record as any).category || "", record.amount, (record as any).currency || "TRY", record.date, record.status, record.note, record.createdAt, record.updatedAt);
       return { success: true, rowsAffected: 1 };
     } catch (error) {
       return { success: false, rowsAffected: 0, error: String(error) };
@@ -166,7 +166,7 @@ export class SqliteAdapter implements IDatabase {
       const db = await this.getDb();
       db.prepare("DELETE FROM records WHERE tenant_id = ?").run(tenantId);
       for (const record of records) {
-        db.prepare("INSERT INTO records (id, tenant_id, title, category, amount, currency, date, status, notes, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)").run(record.id, record.tenant_id, record.title, record.category, record.amount, record.currency, record.date, record.status, record.notes, record.created_at, record.updated_at);
+        db.prepare("INSERT INTO records (id, tenant_id, title, category, amount, currency, date, status, notes, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)").run(record.id, tenantId, record.title, (record as any).category || "", record.amount, (record as any).currency || "TRY", record.date, record.status, record.note, record.createdAt, record.updatedAt);
       }
       return { success: true, rowsAffected: records.length };
     } catch (error) {
@@ -178,7 +178,7 @@ export class SqliteAdapter implements IDatabase {
     try {
       const db = await this.getDb();
       const rows = db.prepare("SELECT * FROM activities WHERE tenant_id = ? ORDER BY created_at DESC LIMIT ?").all(tenantId, limit) as RecordActivity[];
-      return { rows, success: true };
+      return { rows: rows as any, success: true };
     } catch (error) {
       return { rows: [], success: false, error: String(error) };
     }
@@ -188,7 +188,7 @@ export class SqliteAdapter implements IDatabase {
     try {
       const db = await this.getDb();
       const rows = db.prepare("SELECT * FROM activities WHERE tenant_id = ? AND record_id = ? ORDER BY created_at DESC").all(tenantId, recordId) as RecordActivity[];
-      return { rows, success: true };
+      return { rows: rows as any, success: true };
     } catch (error) {
       return { rows: [], success: false, error: String(error) };
     }
@@ -197,7 +197,7 @@ export class SqliteAdapter implements IDatabase {
   async createActivity(activity: RecordActivity): Promise<ExecuteResult> {
     try {
       const db = await this.getDb();
-      db.prepare("INSERT INTO activities (id, tenant_id, record_id, action, details, created_at) VALUES (?, ?, ?, ?, ?, ?)").run(activity.id, activity.tenant_id, activity.record_id, activity.action, activity.details, activity.created_at);
+      db.prepare("INSERT INTO activities (id, tenant_id, record_id, action, details, created_at) VALUES (?, ?, ?, ?, ?, ?)").run(activity.id, activity.tenantId, activity.recordId, activity.type, activity.summary, activity.createdAt);
       return { success: true, rowsAffected: 1 };
     } catch (error) {
       return { success: false, rowsAffected: 0, error: String(error) };
@@ -218,7 +218,7 @@ export class SqliteAdapter implements IDatabase {
     try {
       const db = await this.getDb();
       const row = db.prepare("SELECT * FROM settings WHERE tenant_id = ?").get(tenantId) as WorkspaceSettings | undefined;
-      return { row: row || null, success: true };
+      return { row: row as any || null, success: true };
     } catch (error) {
       return { row: null, success: false, error: String(error) };
     }
@@ -227,7 +227,7 @@ export class SqliteAdapter implements IDatabase {
   async upsertSettings(settings: WorkspaceSettings): Promise<ExecuteResult> {
     try {
       const db = await this.getDb();
-      db.prepare("INSERT OR REPLACE INTO settings (tenant_id, currency, locale, timezone, dashboard_layout, theme) VALUES (?, ?, ?, ?, ?, ?)").run(settings.tenant_id, settings.currency, settings.locale, settings.timezone, settings.dashboard_layout, settings.theme);
+      db.prepare("INSERT OR REPLACE INTO settings (tenant_id, currency, locale, timezone, dashboard_layout, theme) VALUES (?, ?, ?, ?, ?, ?)").run(settings.tenantId || "demo", settings.currency || "TRY", settings.locale || "tr-TR", settings.timezone || "Europe/Istanbul", settings.dashboardLayout || "grid", settings.theme || "light");
       return { success: true, rowsAffected: 1 };
     } catch (error) {
       return { success: false, rowsAffected: 0, error: String(error) };
