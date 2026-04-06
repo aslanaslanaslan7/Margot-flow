@@ -31,12 +31,18 @@ export type RecordActivity = {
 };
 
 export type WorkspaceSettings = {
+  tenantId?: string;
   staleRecordHours: number;
   highValueThreshold: number;
   plannerHorizonDays: number;
   defaultDailyCapacity: number;
   businessHoursStart: string;
   businessHoursEnd: string;
+  currency?: string;
+  locale?: string;
+  timezone?: string;
+  dashboardLayout?: string;
+  theme?: string;
 };
 
 export type RecordsResponse = {
