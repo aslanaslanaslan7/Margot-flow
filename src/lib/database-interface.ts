@@ -91,12 +91,12 @@ export async function getDb(): Promise<IDatabase> {
   }
   
   if (config.provider === "postgres") {
-    const { PostgresAdapter } = await import("./database-postgres-adapter");
+    const { PostgresAdapter } = await import("./database-postgres");
     return new PostgresAdapter();
   }
   
   if (config.provider === "supabase") {
-    const { SupabaseAdapter } = await import("./database-supabase-adapter");
+    const { SupabaseAdapter } = await import("./database-supabase");
     return new SupabaseAdapter();
   }
   
