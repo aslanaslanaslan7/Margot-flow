@@ -85,20 +85,11 @@ export async function getDb(): Promise<IDatabase> {
   // Import the appropriate adapter based on provider
   const config = await import("./database-config").then(m => m.getDatabaseConfig());
   
-  if (config.provider === "sqlite") {
-    const { SqliteAdapter } = await import("./database-sqlite-adapter");
-    return new SqliteAdapter();
+  // Only SQLite is currently supported in this build
+  if (config.provider !== "sqlite") {
+    throw new Error(`DATABASE_PROVIDER=${config.provider} is not supported. Current app supports: sqlite`);
   }
   
-  if (config.provider === "postgres") {
-    const { PostgresAdapter } = await import("./database-postgres");
-    return new PostgresAdapter();
-  }
-  
-  if (config.provider === "supabase") {
-    const { SupabaseAdapter } = await import("./database-supabase");
-    return new SupabaseAdapter();
-  }
-  
-  throw new Error(`Unknown database provider: ${config.provider}`);
+  const { SqliteAdapter } = await import("./database-sqlite-adapter");
+  return new SqliteAdapter();
 }
